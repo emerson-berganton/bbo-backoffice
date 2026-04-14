@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Semanal de Compras · TB Engenharia</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --bg:#0d0f12;--bg2:#13161b;--bg3:#1a1e25;--bg4:#21262f;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#f0f2f5;--text2:#8a939f;--text3:#5a6370;
+  --green:#2dd98f;--gdim:rgba(45,217,143,0.12);
+  --blue:#4a9eff; --bdim:rgba(74,158,255,0.12);
+  --amber:#f5a623;--adim:rgba(245,166,35,0.12);
+  --red:#ff5e5e;  --rdim:rgba(255,94,94,0.12);
+  --purple:#a78bfa;--pdim:rgba(167,139,250,0.12);
+  --teal:#2dd9c8; --tdim:rgba(45,217,200,0.12);
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.5;}
+
+.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.hl{display:flex;align-items:center;gap:12px;}
+.lm{width:32px;height:32px;background:var(--blue);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0;}
+.ht{font-size:14px;font-weight:500;}
+.hs{font-size:11px;color:var(--text2);}
+.hr{display:flex;align-items:center;gap:8px;}
+.hb{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:4px 11px;font-size:11px;color:var(--text2);font-family:var(--mono);}
+.hb b{color:var(--amber);}
+.snav{display:flex;align-items:center;gap:5px;}
+.sb{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);border-radius:5px;padding:4px 10px;cursor:pointer;font-size:11px;font-family:var(--mono);transition:all 0.15s;}
+.sb:hover{background:var(--bg4);color:var(--text);}
+.sb.on{background:var(--bdim);border-color:var(--blue);color:var(--blue);}
+
+.page{padding:22px 28px 48px;max-width:1440px;}
+
+.sec{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin:26px 0 12px;display:flex;align-items:center;gap:8px;}
+.sec::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.kg{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:4px;}
+.kc{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:15px 16px;position:relative;overflow:hidden;transition:border-color 0.2s;}
+.kc:hover{border-color:var(--border2);}
+.kc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:11px 11px 0 0;}
+.kc.ck::before{background:var(--teal);}  .kc.cb::before{background:var(--blue);}
+.kc.ca::before{background:var(--amber);} .kc.cp::before{background:var(--purple);}
+.kc.cg::before{background:var(--green);} .kc.cr::before{background:var(--red);}
+.ki{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;margin-bottom:10px;}
+.ck .ki{background:var(--tdim);color:var(--teal);}  .cb .ki{background:var(--bdim);color:var(--blue);}
+.ca .ki{background:var(--adim);color:var(--amber);} .cp .ki{background:var(--pdim);color:var(--purple);}
+.cg .ki{background:var(--gdim);color:var(--green);} .cr .ki{background:var(--rdim);color:var(--red);}
+.kl{font-size:10px;color:var(--text3);margin-bottom:2px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;}
+.kv{font-size:22px;font-weight:300;letter-spacing:-0.5px;line-height:1;margin-bottom:4px;}
+.ck .kv{color:var(--teal);} .cb .kv{color:var(--blue);}  .ca .kv{color:var(--amber);}
+.cp .kv{color:var(--purple);}.cg .kv{color:var(--green);}  .cr .kv{color:var(--red);}
+.ksub{font-size:10px;color:var(--text3);}
+
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+.g3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;}
+.g32{display:grid;grid-template-columns:3fr 2fr;gap:14px;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:18px 20px;overflow:hidden;}
+.ct{font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--text2);margin-bottom:2px;}
+.cs{font-size:10px;color:var(--text3);margin-bottom:16px;}
+.cw{position:relative;width:100%;}
+
+.sr{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);}
+.sr:last-child{border-bottom:none;}
+.sk{font-size:12px;color:var(--text2);}
+.sv{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text);}
+.sv.g{color:var(--green);}.sv.a{color:var(--amber);}.sv.r{color:var(--red);}
+
+.ft{width:100%;border-collapse:collapse;font-size:11.5px;}
+.ft th{text-align:left;font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);padding:0 7px 9px 0;border-bottom:1px solid var(--border);}
+.ft td{padding:8px 7px 8px 0;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle;}
+.ft tr:last-child td{border-bottom:none;}
+.ft .mn{font-family:var(--mono);font-size:10px;color:var(--text3);}
+.ft .bld{color:var(--text);font-weight:500;}
+.ft .vr{text-align:right;font-family:var(--mono);}
+.badge{display:inline-block;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:0.03em;}
+.bg{background:var(--bdim);color:var(--blue);} .bp{background:var(--pdim);color:var(--purple);}
+.br{background:var(--gdim);color:var(--green);} .bt{background:var(--tdim);color:var(--teal);}
+.ba{background:var(--adim);color:var(--amber);} .bx{background:var(--rdim);color:var(--red);}
+
+.fn{display:flex;flex-direction:column;gap:7px;}
+.fs{display:flex;align-items:center;gap:8px;}
+.fl{width:126px;font-size:11px;color:var(--text2);text-align:right;flex-shrink:0;}
+.fbw{flex:1;}.fbg{height:24px;background:var(--bg4);border-radius:5px;overflow:hidden;}
+.fbf{height:100%;border-radius:5px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:600;}
+.fn-n{width:26px;font-family:var(--mono);font-size:13px;font-weight:500;text-align:right;flex-shrink:0;}
+
+.dr{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--border);}
+.dr:last-child{border-bottom:none;}
+.dname{flex:1;min-width:0;}
+.dname .do{font-size:10px;color:var(--text3);}
+.dname .di{font-size:12px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dbt{width:90px;}.dbt-bg{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.dbt-f{height:100%;border-radius:3px;}
+.dpct{width:38px;text-align:right;font-family:var(--mono);font-size:11px;font-weight:600;}
+.dval{width:95px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--text3);}
+
+.legend{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px;}
+.li{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text2);}
+.ld{width:7px;height:7px;border-radius:2px;flex-shrink:0;}
+
+.big-blk{text-align:center;padding:6px 0 16px;}
+.big-n{font-size:36px;font-weight:300;letter-spacing:-1.5px;color:var(--green);line-height:1;}
+.big-l{font-size:10px;color:var(--text3);margin-top:4px;}
+
+.rg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;}
+.ri{text-align:center;}
+.rv{font-size:14px;font-weight:500;font-family:var(--mono);}
+.rl{font-size:10px;color:var(--text3);margin-top:1px;}
+
+.divider{border:none;border-top:1px solid var(--border);margin:13px 0;}
+
+.cmp{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px 16px;margin-bottom:14px;display:none;}
+.cmp.on{display:block;}
+.cmp-ttl{font-size:10px;color:var(--text3);margin-bottom:9px;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;}
+.cmp-g{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.cmp-i{background:var(--bg4);border-radius:7px;padding:9px 11px;}
+.cmp-l{font-size:10px;color:var(--text3);margin-bottom:3px;}
+.cmp-v{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;}
+.cmp-cur{font-size:14px;font-weight:500;font-family:var(--mono);}
+.cmp-prv{font-size:11px;color:var(--text3);font-family:var(--mono);}
+.delta{font-size:10px;font-family:var(--mono);padding:1px 5px;border-radius:3px;font-weight:700;margin-top:3px;display:inline-block;}
+.dup{background:var(--gdim);color:var(--green);}
+.ddn{background:var(--rdim);color:var(--red);}
+.deq{background:var(--bg4);color:var(--text3);}
+
+.footer{border-top:1px solid var(--border);margin-top:36px;padding-top:16px;display:flex;justify-content:space-between;align-items:center;color:var(--text3);font-size:11px;}
+
+@keyframes fu{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.kc{animation:fu 0.4s ease both;}
+.kc:nth-child(1){animation-delay:0.04s;}.kc:nth-child(2){animation-delay:0.08s;}
+.kc:nth-child(3){animation-delay:0.12s;}.kc:nth-child(4){animation-delay:0.16s;}
+.kc:nth-child(5){animation-delay:0.20s;}.kc:nth-child(6){animation-delay:0.24s;}
+.card{animation:fu 0.45s ease both;animation-delay:0.28s;}
+
+.dw{position:relative;}
+.dc{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
+.dcb{font-size:18px;font-weight:300;color:var(--text);}
+.dcs{font-size:10px;color:var(--text3);margin-top:1px;}
+
+/* ── TABS ── */
+.tabs{display:flex;align-items:center;gap:2px;background:var(--bg3);border-bottom:1px solid var(--border);padding:0 28px;}
+.tab{padding:10px 16px;font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s;white-space:nowrap;}
+.tab:hover{color:var(--text2);}
+.tab.on{color:var(--text);border-bottom-color:var(--blue);}
+.tab.on-cons{color:var(--green);border-bottom-color:var(--green);}
+.tab-sep{width:1px;height:16px;background:var(--border2);margin:0 6px;}
+.view{display:none;}.view.on{display:block;}
+
+/* ── CONSOLIDADO ── */
+.cons-kg{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:4px;}
+.cons-kg .kc{animation:none;}
+.trend{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-family:var(--mono);padding:1px 5px;border-radius:3px;font-weight:700;}
+.trend.up{background:var(--gdim);color:var(--green);}
+.trend.dn{background:var(--rdim);color:var(--red);}
+.trend.eq{background:var(--bg4);color:var(--text3);}
+
+/* tabela consolidada por semana */
+.ct-tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.ct-tbl th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);padding:0 8px 9px 0;border-bottom:1px solid var(--border);}
+.ct-tbl td{padding:8px 8px 8px 0;border-bottom:1px solid var(--border);vertical-align:middle;}
+.ct-tbl tr:last-child td{border-bottom:none;}
+.ct-tbl .vr{text-align:right;font-family:var(--mono);}
+.ct-tbl .mn{font-family:var(--mono);font-size:10px;color:var(--text3);}
+.ct-tbl .hi{color:var(--text);font-weight:500;}
+.bar-inline{display:inline-block;height:6px;border-radius:3px;vertical-align:middle;margin-left:6px;}
+
+/* obra ranking */
+.obra-rank{display:flex;flex-direction:column;gap:8px;}
+.obra-rank-row{display:flex;align-items:center;gap:10px;}
+.obra-rank-name{width:130px;font-size:11px;color:var(--text2);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.obra-rank-track{flex:1;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;}
+.obra-rank-fill{height:100%;border-radius:4px;}
+.obra-rank-val{width:90px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--text);flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     DADOS SEMANAIS — edite apenas este bloco a cada semana
+     ══════════════════════════════════════════════════════ -->
+<script>
+// ╔══════════════════════════════════════════════════════════════════════╗
+// ║   OBJETO DE DADOS — adicione um novo item ao início do array       ║
+// ║   a cada semana. O dashboard exibe automaticamente a mais recente  ║
+// ║   e permite comparar com a anterior.                               ║
+// ║   Todos os valores monetários em R$ inteiros (sem centavos).       ║
+// ╚══════════════════════════════════════════════════════════════════════╝
+const SEMANAS = [
+
+  // ─────────────────────────────────────────────────────
+  // SEMANA 2 — 07/04 a 13/04/2026  ← MAIS RECENTE
+  // ─────────────────────────────────────────────────────
+  {
+    label: "07/04 – 13/04/2026",
+    geradoEm: "14/04/2026",
+
+    solicitacoes: 16,
+    cotacoes: 26,
+    cotacoesRespondidas: 18,
+    cotacoesParciais: 4,
+    cotacoesAbertas: 2,
+    ordens: 23,
+    ordensGeradas: 8,
+    ordensProcessadas: 4,
+    ordensRecebidas: 7,
+    mediaFornPorCot: 3.0,
+
+    // Valores em R$ (ex: 26180.00 = R$ 26.180,00)
+    totalOCs: 29658.50,
+
+    descontos: [
+      // Sem mapas de cotação detalhados com preços comparativos nesta semana
+      // (preencha quando os mapas estiverem disponíveis)
+    ],
+
+    ocs: [
+      { num:"007065", cot:"003516", obra:"Residencia_V&A",       forn:"Alucamp Aluguel de Equipamentos",             data:"13/04/2026", valor:  190.00, sit:"enviada"    },
+      { num:"007064", cot:"003522", obra:"Residencia_A&M",       forn:"Jose Maria Mezavilla",                        data:"13/04/2026", valor:  350.00, sit:"gerada"     },
+      { num:"007063", cot:"003518", obra:"Residência_C&M",       forn:"Zanqueta Comércio de Materiais para Constr.", data:"13/04/2026", valor: 2200.00, sit:"processada" },
+      { num:"007062", cot:"—",      obra:"Residencia_A&M",       forn:"Santos Lourenço Materiais p/ Construção L.",  data:"13/04/2026", valor:  117.50, sit:"gerada"     },
+      { num:"007061", cot:"—",      obra:"Residencia_A&M",       forn:"Souza Locações",                              data:"13/04/2026", valor:  330.00, sit:"gerada"     },
+      { num:"007060", cot:"003519", obra:"Residência_C&M",       forn:"Madereira Americana",                         data:"10/04/2026", valor: 4038.50, sit:"recebida"   },
+      { num:"007059", cot:"003496", obra:"Residência_C&M",       forn:"Meta Materiais Elétricos",                    data:"10/04/2026", valor: 1740.00, sit:"enviada"    },
+      { num:"007058", cot:"003511", obra:"Residencia_A&M",       forn:"Acefer Ferramentas e Tintas",                 data:"09/04/2026", valor: 1740.00, sit:"recebida"   },
+      { num:"007057", cot:"003504", obra:"Residencia_A&M",       forn:"Acefer Ferramentas e Tintas",                 data:"09/04/2026", valor: 3754.62, sit:"recebida"   },
+      { num:"007056", cot:"003505", obra:"Residencia_A&M",       forn:"Ameripel",                                    data:"09/04/2026", valor: 1230.00, sit:"enviada"    },
+      { num:"007055", cot:"003503", obra:"Muro_C&P",             forn:"Santos Lourenço Materiais p/ Construção L.",  data:"08/04/2026", valor:  879.00, sit:"recebida"   },
+      { num:"007054", cot:"003510", obra:"Residencia_A&M",       forn:"Calu Materiais para Construção Ltda",         data:"08/04/2026", valor:  698.00, sit:"gerada"     },
+      { num:"007053", cot:"003487", obra:"Residência_C&M",       forn:"Newton & Newton Instalações Elétricas e Te.", data:"08/04/2026", valor: 2450.00, sit:"enviada"    },
+      { num:"007052", cot:"—",      obra:"Residencia_V&A",       forn:"Barreiro Ambiental Ltda",                     data:"08/04/2026", valor:  460.00, sit:"gerada"     },
+      { num:"007051", cot:"003506", obra:"Residencia_A&M",       forn:"Calu Materiais para Construção Ltda",         data:"08/04/2026", valor: 1585.00, sit:"recebida"   },
+      { num:"007050", cot:"003507", obra:"Residencia_A&M",       forn:"Giacomo Furlan Areia e Pedra para Constr.",   data:"08/04/2026", valor:  770.00, sit:"processada" },
+      { num:"007049", cot:"003500", obra:"REFORMA_BAR_CAMPINAS", forn:"Tognolo Materiais p/ Construção",             data:"08/04/2026", valor:  605.00, sit:"processada" },
+      { num:"007048", cot:"—",      obra:"Muro_C&P",             forn:"3B Comércio de Papelaria Eirele ME",          data:"07/04/2026", valor:  234.90, sit:"recebida"   },
+      { num:"007047", cot:"003435", obra:"Residencia_A&M",       forn:"Meta Materiais Elétricos",                    data:"07/04/2026", valor:  485.00, sit:"enviada"    },
+      { num:"007046", cot:"003502", obra:"Residencia_A&M",       forn:"Santos Lourenço Materiais p/ Construção L.",  data:"07/04/2026", valor:  896.98, sit:"recebida"   },
+      { num:"007045", cot:"003492", obra:"Muro_C&P",             forn:"Concrelongo Serviços de Concretagem Ltda",    data:"07/04/2026", valor: 1000.00, sit:"processada" },
+      { num:"007044", cot:"003491", obra:"Muro_C&P",             forn:"Concrelongo Serviços de Concretagem Ltda",    data:"07/04/2026", valor: 7225.00, sit:"processada" },
+      { num:"007043", cot:"003489", obra:"Muro_C&P",             forn:"Avelino Rodrigues Locação",                   data:"07/04/2026", valor:  100.00, sit:"recebida"   },
+    ],
+
+    cotPorObra: {
+      labels:      ["Resid. C&M","Resid. V&A","Muro C&P","Resid. A&M","Reforma Bar"],
+      respondida:  [4, 3, 3, 7, 1],
+      parcial:     [1, 1, 1, 1, 0],
+      enviada:     [1, 1, 0, 1, 1],
+      aberta:      [1, 0, 0, 0, 1],
+    },
+
+    timeline: {
+      dias:    ["07/04", "08/04", "09/04", "10/04", "13/04"],
+      valores: [8215.88, 5868.00, 6724.62, 5778.50, 3071.50],
+    },
+
+    responsaveis: [
+      { nome: "Marta Beraldo",  ocs: 13, total: 16540.50 },
+      { nome: "Alanna Juan",    ocs:  7, total:  9884.00  },
+      { nome: "Tatiane Beraldo", ocs: 3, total:  3234.00  },
+    ],
+
+    pendencias: [
+      { num:"001549", desc:"Placa de isopor para paredes de divisa",      obra:"Residência_C&M",       sit:"aberta"  },
+      { num:"001528", desc:"Acabamentos elétricos – jogos de tomadas",     obra:"REFORMA_BAR_CAMPINAS", sit:"aberta"  },
+      { num:"001524", desc:"Arranque de pilares e pilares pav. térreo",    obra:"Residência_C&M",       sit:"aberta"  },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────
+  // SEMANA 1 — 30/03 a 06/04/2026
+  // ─────────────────────────────────────────────────────
+  {
+    label: "30/03 – 06/04/2026",
+    geradoEm: "07/04/2026",
+
+    // Contagens operacionais
+    solicitacoes: 13,
+    cotacoes: 16,
+    cotacoesRespondidas: 6,
+    cotacoesParciais: 4,
+    cotacoesAbertas: 2,
+    ordens: 11,
+    ordensGeradas: 6,
+    ordensProcessadas: 3,
+    ordensRecebidas: 1,
+    mediaFornPorCot: 2.8,
+
+    // Valor total das OCs emitidas (R$)
+    // ATENÇÃO: valores em R$ reais com centavos (ex: 26180.00 = R$ 26.180,00)
+    totalOCs: 47930.50,
+
+    // Descontos — diferença entre maior preço cotado e vencedor
+    // Valores em R$ (ex: 31075.00 = R$ 31.075,00)
+    descontos: [
+      {
+        cotacao: "003466",
+        obra: "Residência_V&A",
+        item: "Concreto usinado 40MPa – 55 m³",
+        fornVenc: "Votorantim/Engemix",
+        maiorPreco: 31075.00,
+        precoVenc:  26180.00
+      },
+      {
+        cotacao: "003487",
+        obra: "Residência_C&M",
+        item: "Caminhão de terra 12 m (5 un)",
+        fornVenc: "Newton & Newton",
+        maiorPreco: 1325.00,
+        precoVenc:  1150.00
+      },
+      {
+        cotacao: "003491",
+        obra: "Muro_C&P",
+        item: "Concreto usinado FCK 25 MPa – 17 m³",
+        fornVenc: "Concrelongo",
+        maiorPreco: 7539.50,
+        precoVenc:  7225.00
+      },
+      {
+        cotacao: "003487",
+        obra: "Residência_C&M",
+        item: "Locação de Bobcat (1 dia)",
+        fornVenc: "Newton & Newton",
+        maiorPreco: 1325.00,
+        precoVenc:  1300.00
+      },
+    ],
+
+    // Ordens de compra detalhadas
+    // sit: "gerada" | "processada" | "recebida"
+    // valor em R$ com centavos (ex: 26180.00 = R$ 26.180,00)
+    ocs: [
+      { num:"007040", cot:"003446", obra:"Residência_V&A",       forn:"Votorantim Cimentos S/A",         data:"06/04/2026", valor:26180.00, sit:"processada" },
+      { num:"007035", cot:"003488", obra:"Muro_A&M",             forn:"Hipermix",                         data:"01/04/2026", valor: 8426.50, sit:"gerada"     },
+      { num:"007041", cot:"003466", obra:"Residência_V&A",       forn:"Votorantim Cimentos S/A",         data:"06/04/2026", valor: 3640.00, sit:"gerada"     },
+      { num:"007032", cot:"003485", obra:"Muro_C&P",             forn:"Bob Maq Loc. e Terrap. Ltda",    data:"30/03/2026", valor: 3500.00, sit:"processada" },
+      { num:"007036", cot:"003484", obra:"Residência_V&A",       forn:"Avelino Rodrigues Locação",       data:"01/04/2026", valor: 1622.00, sit:"gerada"     },
+      { num:"007033", cot:"003476", obra:"Residência_C&M",       forn:"Concrebase",                      data:"31/03/2026", valor: 1500.00, sit:"processada" },
+      { num:"007039", cot:"—",      obra:"Residência_A&M",       forn:"Taiacamp Mat. de Construção Ltda",data:"06/04/2026", valor: 1100.00, sit:"gerada"     },
+      { num:"007042", cot:"003499", obra:"Residência_A&M",       forn:"Calu Materiais para Construção",  data:"06/04/2026", valor:  795.00, sit:"gerada"     },
+      { num:"007031", cot:"003479", obra:"Muro_C&P",             forn:"Madereira Americana",             data:"30/03/2026", valor:  702.00, sit:"recebida"   },
+      { num:"007038", cot:"003490", obra:"Reforma_Bar_Campinas", forn:"Acefer Ferramentas e Tintas",    data:"02/04/2026", valor:  310.00, sit:"gerada"     },
+      { num:"007037", cot:"003486", obra:"Reforma_Bar_Campinas", forn:"Acefer Ferramentas e Tintas",    data:"01/04/2026", valor:  155.00, sit:"gerada"     },
+    ],
+
+    // Cotações por obra e situação (gráfico empilhado)
+    cotPorObra: {
+      labels:      ["Resid. C&M","Resid. V&A","Muro C&P","Muro A&M","Reforma Bar","Resid. A&M"],
+      respondida:  [2, 2, 2, 1, 1, 0],
+      parcial:     [1, 1, 0, 0, 1, 1],
+      enviada:     [0, 0, 0, 0, 2, 0],
+      aberta:      [1, 0, 0, 0, 0, 1],
+    },
+
+    // Dias com movimentação de OC (para timeline) — valores em R$
+    timeline: {
+      dias:    ["30/03", "31/03", "01/04", "02/04", "06/04"],
+      valores: [4202.00, 1500.00, 13573.50, 310.00, 28345.00],
+    },
+
+    // Responsáveis de compras — total em R$
+    responsaveis: [
+      { nome: "Marta Beraldo", ocs: 5, total: 32430.00 },
+      { nome: "Alanna Juan",   ocs: 6, total: 15500.50 },
+    ],
+
+    // Solicitações ainda abertas / pendentes no fechamento da semana
+    pendencias: [
+      { num:"001524", desc:"Arranque de pilares e pilares",     obra:"Residência_C&M",  sit:"aberta"  },
+      { num:"001532", desc:"Complemento de blocos cerâmicos",   obra:"Reforma_Bar",      sit:"aberta"  },
+      { num:"001522", desc:"Adicional de concreto",             obra:"Muro_A&M",          sit:"parcial" },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────
+  // TEMPLATE SEMANA 3 — cole acima como primeiro item
+  // do array e preencha com os dados da próxima semana.
+  // ─────────────────────────────────────────────────────
+  // {
+  //   label: "14/04 – 20/04/2026",
+  //   geradoEm: "21/04/2026",
+  //   solicitacoes: 0,
+  //   cotacoes: 0,
+  //   cotacoesRespondidas: 0,
+  //   cotacoesParciais: 0,
+  //   cotacoesAbertas: 0,
+  //   ordens: 0,
+  //   ordensGeradas: 0,
+  //   ordensProcessadas: 0,
+  //   ordensRecebidas: 0,
+  //   mediaFornPorCot: 0,
+  //   totalOCs: 0,
+  //   descontos: [],
+  //   ocs: [],
+  //   cotPorObra: { labels:[], respondida:[], parcial:[], enviada:[], aberta:[] },
+  //   timeline: { dias:[], valores:[] },
+  //   responsaveis: [],
+  //   pendencias: [],
+  // },
+
+];
+
+// ════════════════════════════════════════
+// FORMATADORES — padrão brasileiro
+// ════════════════════════════════════════
+
+// R$ 26.180,00  (formato completo, sempre 2 casas decimais)
+const brl = v => "R$\u00A0" + Number(v).toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+// Alias — mesma coisa, usado em todo o código
+const brlK = brl;
+
+// Para eixos de gráfico: abrevia apenas se necessário para caber no eixo
+// Ex: 47.930,50 → R$ 47.930  |  1.500,00 → R$ 1.500
+const brlAx = v => {
+  if (Math.abs(v) === 0) return "R$\u00A00";
+  return "R$\u00A0" + Number(v).toLocaleString("pt-BR", {minimumFractionDigits: 0, maximumFractionDigits: 0});
+};
+
+// 12,3%
+const pctStr = (a, b) => b > 0 ? (a / b * 100).toLocaleString("pt-BR", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + "%" : "—";
+</script>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<div class="header">
+  <div class="hl">
+    <div class="lm">TB</div>
+    <div>
+      <div class="ht">TB Engenharia e Construção</div>
+      <div class="hs" id="hSub">Dashboard Semanal de Compras</div>
+    </div>
+  </div>
+  <div class="hr">
+    <div class="hb">Período&nbsp;<b id="hPer">—</b></div>
+  </div>
+</div>
+
+<!-- ═══════════════ ABAS ═══════════════ -->
+<div class="tabs" id="tabBar"></div>
+
+<div class="page">
+
+  <!-- ══ VIEW: SEMANA INDIVIDUAL ══ -->
+  <div class="view on" id="view-semana">
+
+  <!-- KPIs -->
+  <div class="sec">Indicadores do período</div>
+  <div class="kg">
+    <div class="kc cb"><div class="ki">◎</div><div class="kl">Solicitações</div><div class="kv" id="kSol">—</div><div class="ksub" id="kSolS">—</div></div>
+    <div class="kc ca"><div class="ki">◈</div><div class="kl">Cotações ativas</div><div class="kv" id="kCot">—</div><div class="ksub" id="kCotS">—</div></div>
+    <div class="kc cp"><div class="ki">◆</div><div class="kl">Ordens de compra</div><div class="kv" id="kOC">—</div><div class="ksub" id="kOCS">—</div></div>
+    <div class="kc ck"><div class="ki">◉</div><div class="kl">Total comprado</div><div class="kv" id="kTot">—</div><div class="ksub">R$ em OCs emitidas</div></div>
+    <div class="kc cg"><div class="ki">▲</div><div class="kl">Desconto obtido</div><div class="kv" id="kDes">—</div><div class="ksub" id="kDesS">—</div></div>
+    <div class="kc cr"><div class="ki">◑</div><div class="kl">Ticket médio / OC</div><div class="kv" id="kTick">—</div><div class="ksub" id="kTickS">—</div></div>
+  </div>
+
+  <!-- Comparação semana anterior -->
+  <div class="cmp" id="cmpBlk">
+    <div class="cmp-ttl">Comparação com semana anterior</div>
+    <div class="cmp-g" id="cmpG"></div>
+  </div>
+
+  <!-- Funil + Obras -->
+  <div class="sec">Funil operacional · volume por obra</div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Funil · Solicitação → OC</div>
+      <div class="cs">Conversão por etapa no período</div>
+      <div class="fn" id="fnSteps"></div>
+      <div class="divider"></div>
+      <div class="sr"><div class="sk">Taxa sol. → OC emitida</div><div class="sv a" id="txSOC">—</div></div>
+      <div class="sr"><div class="sk">Taxa OC → recebimento</div><div class="sv a" id="txRec">—</div></div>
+      <div class="sr"><div class="sk">Média de fornecedores por cotação</div><div class="sv" id="mForn">—</div></div>
+    </div>
+    <div class="card">
+      <div class="ct">Volume de compras por obra</div>
+      <div class="cs">R$ total em OCs emitidas no período</div>
+      <div class="cw dw" style="height:200px;">
+        <canvas id="chObras"></canvas>
+        <div class="dc"><div class="dcb" id="obTot">—</div><div class="dcs">total OCs</div></div>
+      </div>
+      <div class="legend" id="legObras"></div>
+    </div>
+  </div>
+
+  <!-- Descontos -->
+  <div class="sec">Análise de descontos obtidos</div>
+  <div class="g3">
+    <div class="card">
+      <div class="ct">Desconto por cotação</div>
+      <div class="cs">Maior preço cotado vs. fornecedor vencedor</div>
+      <div class="big-blk">
+        <div class="big-n" id="dTot">—</div>
+        <div class="big-l" id="dPct">—</div>
+      </div>
+      <div id="dRows"></div>
+    </div>
+    <div class="card">
+      <div class="ct">Distribuição do desconto</div>
+      <div class="cs">Peso percentual por cotação</div>
+      <div class="cw dw" style="height:180px;">
+        <canvas id="chDisc"></canvas>
+        <div class="dc"><div class="dcb" id="dMedC">—</div><div class="dcs">desc. médio</div></div>
+      </div>
+      <div class="divider" style="margin-top:12px;"></div>
+      <div class="sr"><div class="sk">Desconto médio ponderado</div><div class="sv g" id="dMed">—</div></div>
+      <div class="sr"><div class="sk">Cotações com desconto</div><div class="sv g" id="dQtd">—</div></div>
+      <div class="sr"><div class="sk">Maior desconto unitário</div><div class="sv g" id="dMax">—</div></div>
+    </div>
+    <div class="card">
+      <div class="ct">Resumo financeiro</div>
+      <div class="cs">Bruto cotado vs. líquido negociado</div>
+      <div id="rFin"></div>
+      <div class="divider"></div>
+      <div id="rOCs"></div>
+    </div>
+  </div>
+
+  <!-- Status cotações + OC -->
+  <div class="sec">Status das cotações · situação das OCs</div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Cotações por obra e situação</div>
+      <div class="cs">Quantidade por status no período</div>
+      <div class="cw" style="height:210px;"><canvas id="chCot"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">OCs por situação financeira</div>
+      <div class="cs">Ciclo de recebimento</div>
+      <div class="cw dw" style="height:180px;">
+        <canvas id="chOC"></canvas>
+        <div class="dc"><div class="dcb" id="ocTotN">—</div><div class="dcs">ordens</div></div>
+      </div>
+      <div class="rg" id="rgrid"></div>
+    </div>
+  </div>
+
+  <!-- OC Tabela + Timeline -->
+  <div class="sec">Detalhamento das ordens de compra</div>
+  <div class="g32">
+    <div class="card">
+      <div class="ct">Todas as OCs do período</div>
+      <div class="cs">Ordenadas por valor decrescente · valores em R$</div>
+      <table class="ft">
+        <thead><tr>
+          <th>Nº OC</th><th>Cotação</th><th>Obra</th><th>Fornecedor</th>
+          <th>Data</th><th class="vr">Valor (R$)</th><th>Situação</th>
+        </tr></thead>
+        <tbody id="ocBody"></tbody>
+        <tfoot id="ocFoot"></tfoot>
+      </table>
+    </div>
+    <div class="card">
+      <div class="ct">OCs acumuladas no período</div>
+      <div class="cs">Valor diário + curva acumulada</div>
+      <div class="cw" style="height:168px;"><canvas id="chTL"></canvas></div>
+      <div class="divider"></div>
+      <div class="ct" style="margin-bottom:9px;">Por responsável</div>
+      <div id="resp"></div>
+      <div class="divider"></div>
+      <div class="ct" style="margin-bottom:9px;">Pendências abertas</div>
+      <div id="pend"></div>
+    </div>
+  </div>
+
+  </div><!-- /view-semana -->
+
+  <!-- ══ VIEW: CONSOLIDADO ══ -->
+  <div class="view" id="view-cons">
+
+    <div class="sec">Visão consolidada · todas as semanas</div>
+
+    <!-- KPIs acumulados -->
+    <div class="cons-kg">
+      <div class="kc ck"><div class="ki">◉</div><div class="kl">Total acumulado</div><div class="kv" id="cTot">—</div><div class="ksub" id="cTotS">—</div></div>
+      <div class="kc cg"><div class="ki">▲</div><div class="kl">Desconto acumulado</div><div class="kv" id="cDesc">—</div><div class="ksub" id="cDescS">—</div></div>
+      <div class="kc cp"><div class="ki">◆</div><div class="kl">OCs emitidas</div><div class="kv" id="cOCs">—</div><div class="ksub" id="cOCsS">—</div></div>
+      <div class="kc cb"><div class="ki">◎</div><div class="kl">Solicitações</div><div class="kv" id="cSol">—</div><div class="ksub" id="cSolS">—</div></div>
+      <div class="kc ca"><div class="ki">◈</div><div class="kl">Semanas registradas</div><div class="kv" id="cSems">—</div><div class="ksub">de 12 previstas</div></div>
+    </div>
+
+    <!-- Gráfico evolução semanal + tabela resumo -->
+    <div class="sec">Evolução semana a semana</div>
+    <div class="g2">
+      <div class="card">
+        <div class="ct">Total de OCs por semana</div>
+        <div class="cs">Valor emitido e tendência acumulada</div>
+        <div class="cw" style="height:220px;"><canvas id="chEvolOC"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="ct">Solicitações e cotações por semana</div>
+        <div class="cs">Volume operacional semanal</div>
+        <div class="cw" style="height:220px;"><canvas id="chEvolOp"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Tabela comparativa por semana -->
+    <div class="sec">Comparativo semanal detalhado</div>
+    <div class="card">
+      <div class="ct">Resumo por semana</div>
+      <div class="cs">Todas as semanas registradas · ordenadas cronologicamente</div>
+      <table class="ct-tbl">
+        <thead><tr>
+          <th>Semana</th>
+          <th>Período</th>
+          <th class="vr">Total OCs</th>
+          <th class="vr">Desconto obtido</th>
+          <th class="vr">% desc.</th>
+          <th class="vr">Nº OCs</th>
+          <th class="vr">Solicit.</th>
+          <th class="vr">Cotações</th>
+          <th class="vr">Ticket médio</th>
+          <th>vs. anterior</th>
+        </tr></thead>
+        <tbody id="cTbody"></tbody>
+        <tfoot id="cTfoot"></tfoot>
+      </table>
+    </div>
+
+    <!-- Ranking obras acumulado + OC por status -->
+    <div class="g2">
+      <div class="card">
+        <div class="ct">Ranking de obras · volume acumulado</div>
+        <div class="cs">R$ total em OCs por obra em todas as semanas</div>
+        <div class="obra-rank" id="cObraRank"></div>
+      </div>
+      <div class="card">
+        <div class="ct">Desconto por semana</div>
+        <div class="cs">Valor absoluto economizado em cada semana</div>
+        <div class="cw" style="height:220px;"><canvas id="chEvolDesc"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Fornecedores mais frequentes -->
+    <div class="sec">Fornecedores · acumulado de todas as semanas</div>
+    <div class="card">
+      <div class="ct">Top fornecedores por volume (R$)</div>
+      <div class="cs">OCs emitidas em todas as semanas registradas</div>
+      <div id="cFornRank"></div>
+    </div>
+
+  </div><!-- /view-cons -->
+
+  <div class="footer">
+    <div id="fTxt">TB Engenharia e Construção · Dashboard Semanal de Compras</div>
+    <span>v2.0 · pt-BR</span>
+  </div>
+</div>
+
+<!-- script de render inserido acima via str_replace -->
+<script>
+Chart.defaults.color='#5a6370';Chart.defaults.font.family="'DM Sans',sans-serif";Chart.defaults.font.size=11;
+const CORES=['#4a9eff','#2dd9c8','#f5a623','#a78bfa','#2dd98f','#ff5e5e','#f97316','#e879f9','#fb923c','#34d399','#60a5fa','#c084fc'];
+const BADGE={gerada:'<span class="badge bg">Gerada</span>',processada:'<span class="badge bp">Processada</span>',recebida:'<span class="badge br">Recebida ✓</span>',aberta:'<span class="badge ba">Aberta</span>',parcial:'<span class="badge bx">Parcial</span>',enviada:'<span class="badge bt">Env. forn.</span>'};
+let charts={},viewAtual='semana',idxAtivo=0;
+function killCharts(){Object.values(charts).forEach(c=>{try{c.destroy();}catch(e){}});charts={};}
+function buildTabs(){
+  const bar=document.getElementById('tabBar');bar.innerHTML='';
+  SEMANAS.forEach((sm,i)=>{
+    const t=document.createElement('div');
+    t.className='tab'+(viewAtual==='semana'&&i===idxAtivo?' on':'');
+    t.textContent='Sem.'+(SEMANAS.length-i)+' · '+sm.label;
+    t.title='Gerado em '+sm.geradoEm;
+    t.onclick=()=>{viewAtual='semana';idxAtivo=i;buildTabs();renderSemana(i);};
+    bar.appendChild(t);
+  });
+  const sep=document.createElement('div');sep.className='tab-sep';bar.appendChild(sep);
+  const tc=document.createElement('div');
+  tc.className='tab'+(viewAtual==='cons'?' on-cons':'');
+  tc.innerHTML='◈ Consolidado';tc.title='Visão de todas as semanas';
+  tc.onclick=()=>{viewAtual='cons';buildTabs();renderCons();};
+  bar.appendChild(tc);
+}
+function renderSemana(idx){
+  killCharts();
+  document.getElementById('view-semana').classList.add('on');
+  document.getElementById('view-cons').classList.remove('on');
+  const s=SEMANAS[idx];if(!s)return;
+  document.getElementById('hSub').textContent='Dashboard Semanal de Compras · Gerado em '+s.geradoEm;
+  document.getElementById('hPer').textContent=s.label;
+  document.getElementById('fTxt').textContent='TB Engenharia e Construção · '+s.label+' · Gerado em '+s.geradoEm;
+  const des=s.descontos;
+  const bruto=des.reduce((a,d)=>a+d.maiorPreco,0),venc=des.reduce((a,d)=>a+d.precoVenc,0),descAbs=bruto-venc,descPct=bruto>0?descAbs/bruto*100:0;
+  const ocs=[...s.ocs].sort((a,b)=>b.valor-a.valor);
+  const mediaOC=s.totalOCs/s.ordens;
+  const sortedV=[...s.ocs].map(o=>o.valor).sort((a,b)=>a-b);
+  const mediana=sortedV.length%2===0?(sortedV[sortedV.length/2-1]+sortedV[sortedV.length/2])/2:sortedV[Math.floor(sortedV.length/2)];
+  const menorOC=Math.min(...s.ocs.map(o=>o.valor)),maiorOC=Math.max(...s.ocs.map(o=>o.valor));
+  document.getElementById('kSol').textContent=s.solicitacoes;
+  document.getElementById('kSolS').textContent='última #'+(s.pendencias[0]?.num||'');
+  document.getElementById('kCot').textContent=s.cotacoes;
+  document.getElementById('kCotS').textContent=s.cotacoesRespondidas+' resp. · '+s.cotacoesParciais+' parciais · '+s.cotacoesAbertas+' abertas';
+  document.getElementById('kOC').textContent=s.ordens;
+  document.getElementById('kOCS').textContent=s.ordensRecebidas+' recebida · '+s.ordensProcessadas+' processadas';
+  document.getElementById('kTot').textContent=brlK(s.totalOCs);
+  document.getElementById('kDes').textContent=des.length?brlK(descAbs):'—';
+  document.getElementById('kDesS').textContent=des.length?descPct.toLocaleString('pt-BR',{minimumFractionDigits:1})+'% sobre cotações mapeadas':'sem mapa de cotação';
+  document.getElementById('kTick').textContent=brlK(mediaOC);
+  document.getElementById('kTickS').textContent='Mediana: '+brlK(mediana);
+  // Comparação
+  const cmpEl=document.getElementById('cmpBlk');
+  if(idx+1<SEMANAS.length){
+    const pv=SEMANAS[idx+1],pvDesc=pv.descontos.reduce((a,d)=>a+(d.maiorPreco-d.precoVenc),0);
+    const itens=[{l:'Total OCs',cur:s.totalOCs,prv:pv.totalOCs,fmt:brlK},{l:'Desconto',cur:descAbs,prv:pvDesc,fmt:brlK},{l:'OCs emitidas',cur:s.ordens,prv:pv.ordens,fmt:v=>v}];
+    document.getElementById('cmpG').innerHTML=itens.map(it=>{
+      const d=it.cur-it.prv,dp=it.prv>0?d/it.prv*100:0,cls=d>0?'dup':d<0?'ddn':'deq',sign=d>0?'+':'';
+      return`<div class="cmp-i"><div class="cmp-l">${it.l}</div><div class="cmp-v"><div class="cmp-cur">${it.fmt(it.cur)}</div><div class="cmp-prv">ant.: ${it.fmt(it.prv)}</div></div><span class="delta ${cls}">${sign}${dp.toLocaleString('pt-BR',{minimumFractionDigits:1})}%</span></div>`;
+    }).join('');
+    cmpEl.classList.add('on');
+  }else{cmpEl.classList.remove('on');}
+  // Funil
+  const fnDados=[{l:'Solicitações',n:s.solicitacoes,c:'#4a9eff',pct:100},{l:'Cotações geradas',n:s.cotacoes,c:'#f5a623',pct:Math.round(s.cotacoes/s.solicitacoes*100)},{l:'Cotações respondidas',n:s.cotacoesRespondidas,c:'#a78bfa',pct:Math.round(s.cotacoesRespondidas/s.solicitacoes*100)},{l:'OCs emitidas',n:s.ordens,c:'#2dd98f',pct:Math.round(s.ordens/s.solicitacoes*100)},{l:'OCs recebidas',n:s.ordensRecebidas,c:'#2dd9c8',pct:Math.round(s.ordensRecebidas/s.solicitacoes*100)}];
+  document.getElementById('fnSteps').innerHTML=fnDados.map(f=>`<div class="fs"><div class="fl">${f.l}</div><div class="fbw"><div class="fbg"><div class="fbf" style="width:${Math.max(f.pct,2)}%;background:${f.c};color:${['#f5a623','#2dd98f','#2dd9c8'].includes(f.c)?'#000':'#fff'}">${f.n}</div></div></div><div class="fn-n" style="color:${f.c}">${f.n}</div></div>`).join('');
+  document.getElementById('txSOC').textContent=pctStr(s.ordens,s.solicitacoes);
+  document.getElementById('txRec').textContent=pctStr(s.ordensRecebidas,s.ordens);
+  document.getElementById('mForn').textContent=s.mediaFornPorCot.toLocaleString('pt-BR',{minimumFractionDigits:1});
+  // Donut obras
+  const obraMap={};s.ocs.forEach(o=>{obraMap[o.obra]=(obraMap[o.obra]||0)+o.valor;});
+  const obraNomes=Object.keys(obraMap),obraVals=obraNomes.map(n=>obraMap[n]),obraCores=CORES.slice(0,obraNomes.length);
+  document.getElementById('obTot').textContent=brlK(s.totalOCs);
+  charts.obras=new Chart(document.getElementById('chObras').getContext('2d'),{type:'doughnut',data:{labels:obraNomes,datasets:[{data:obraVals,backgroundColor:obraCores,borderColor:'#13161b',borderWidth:3,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+brlK(ctx.parsed)+'  ('+pctStr(ctx.parsed,s.totalOCs)+')' }}}}});
+  document.getElementById('legObras').innerHTML=obraNomes.map((n,i)=>`<div class="li"><div class="ld" style="background:${obraCores[i]}"></div>${n} <span style="color:${obraCores[i]};margin-left:3px;">${pctStr(obraVals[i],s.totalOCs)}</span></div>`).join('');
+  // Descontos
+  if(des.length){
+    const maiorPct=Math.max(...des.map(d=>d.maiorPreco>0?(d.maiorPreco-d.precoVenc)/d.maiorPreco*100:0));
+    const dc=['#2dd98f','#4a9eff','#f5a623','#2dd9c8','#a78bfa','#ff5e5e'];
+    document.getElementById('dTot').textContent=brlK(descAbs);
+    document.getElementById('dPct').textContent=descPct.toLocaleString('pt-BR',{minimumFractionDigits:1})+'% economizados';
+    document.getElementById('dMed').textContent=descPct.toLocaleString('pt-BR',{minimumFractionDigits:1})+'%';
+    document.getElementById('dMedC').textContent=descPct.toLocaleString('pt-BR',{minimumFractionDigits:1})+'%';
+    document.getElementById('dQtd').textContent=des.filter(d=>d.maiorPreco>d.precoVenc).length+' de '+des.length;
+    document.getElementById('dMax').textContent=maiorPct.toLocaleString('pt-BR',{minimumFractionDigits:1})+'%';
+    document.getElementById('dRows').innerHTML=des.map((d,i)=>{const dv=d.maiorPreco-d.precoVenc,dp=d.maiorPreco>0?dv/d.maiorPreco*100:0,bw=maiorPct>0?Math.max(dp/maiorPct*100,0):0;return`<div class="dr"><div class="dname"><div class="do">${d.obra} · Cot. ${d.cotacao}</div><div class="di">${d.item} – ${d.fornVenc}</div></div><div class="dbt"><div class="dbt-bg"><div class="dbt-f" style="width:${bw}%;background:${dc[i]};"></div></div></div><div class="dpct" style="color:${dc[i]}">${dp.toLocaleString('pt-BR',{minimumFractionDigits:1})}%</div><div class="dval">${brlK(dv)}</div></div>`;}).join('');
+    charts.disc=new Chart(document.getElementById('chDisc').getContext('2d'),{type:'doughnut',data:{labels:des.map(d=>d.cotacao+' – '+d.obra),datasets:[{data:des.map(d=>Math.max(d.maiorPreco-d.precoVenc,0)),backgroundColor:dc,borderColor:'#13161b',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+brlK(ctx.parsed)+' ('+pctStr(ctx.parsed,descAbs)+')'}}}}});
+  }else{
+    ['dTot','dMedC'].forEach(id=>document.getElementById(id).textContent='—');
+    document.getElementById('dPct').textContent='Sem mapa de cotação disponível nesta semana';
+    ['dMed','dQtd','dMax'].forEach(id=>document.getElementById(id).textContent='—');
+    document.getElementById('dRows').innerHTML='<div style="font-size:12px;color:var(--text3);padding:12px 0;">Nenhum mapa de cotação com comparação de preços nesta semana.</div>';
+  }
+  // Resumo fin
+  document.getElementById('rFin').innerHTML=[{k:'Total bruto (maior preço cotado)',v:des.length?brl(bruto):'—',c:''},{k:'Total líquido (fornecedor vencedor)',v:des.length?brl(venc):'—',c:''},{k:'Desconto absoluto obtido',v:des.length?'− '+brl(descAbs):'—',c:'g'},{k:'Desconto % sobre o bruto',v:des.length?pctStr(descAbs,bruto):'—',c:'g'}].map(r=>`<div class="sr"><div class="sk">${r.k}</div><div class="sv ${r.c}">${r.v}</div></div>`).join('');
+  document.getElementById('rOCs').innerHTML=[{k:'OC total emitido',v:brl(s.totalOCs),c:'a'},{k:'Ticket médio',v:brl(mediaOC),c:''},{k:'Mediana',v:brl(mediana),c:''},{k:'Menor OC',v:brl(menorOC),c:''},{k:'Maior OC',v:brl(maiorOC),c:''}].map(r=>`<div class="sr"><div class="sk">${r.k}</div><div class="sv ${r.c}">${r.v}</div></div>`).join('');
+  // Stacked cot
+  const cp=s.cotPorObra;
+  charts.cot=new Chart(document.getElementById('chCot').getContext('2d'),{type:'bar',data:{labels:cp.labels,datasets:[{label:'Respondida',data:cp.respondida,backgroundColor:'#2dd98f',borderRadius:3},{label:'Resp. parcial',data:cp.parcial,backgroundColor:'#4a9eff',borderRadius:3},{label:'Enviada forn.',data:cp.enviada,backgroundColor:'#f5a623',borderRadius:3},{label:'Aberta',data:cp.aberta,backgroundColor:'#ff5e5e',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{color:'#5a6370',font:{size:10},boxWidth:9,padding:12}}},scales:{x:{stacked:true,grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a6370',maxRotation:25,font:{size:10}}},y:{stacked:true,grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a6370',stepSize:1},beginAtZero:true}}}});
+  // Donut OC status
+  document.getElementById('ocTotN').textContent=s.ordens;
+  charts.oc=new Chart(document.getElementById('chOC').getContext('2d'),{type:'doughnut',data:{labels:['Gerada','Processada','Recebida','Em aberto'],datasets:[{data:[s.ordensGeradas,s.ordensProcessadas,s.ordensRecebidas,Math.max(s.ordens-s.ordensGeradas-s.ordensProcessadas-s.ordensRecebidas,0)],backgroundColor:['#4a9eff','#a78bfa','#2dd98f','#f5a623'],borderColor:'#13161b',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false}}}});
+  document.getElementById('rgrid').innerHTML=[{v:s.ordensGeradas,l:'Geradas',c:'var(--blue)'},{v:s.ordensProcessadas,l:'Processadas',c:'var(--purple)'},{v:s.ordensRecebidas,l:'Recebidas',c:'var(--green)'},{v:s.cotacoesAbertas,l:'Cot. abertas',c:'var(--amber)'}].map(r=>`<div class="ri"><div class="rv" style="color:${r.c}">${r.v}</div><div class="rl">${r.l}</div></div>`).join('');
+  // Tabela OC
+  document.getElementById('ocBody').innerHTML=ocs.map(o=>`<tr><td class="mn bld">${o.num}</td><td class="mn">${o.cot}</td><td class="bld" style="font-size:11px;">${o.obra}</td><td style="color:var(--text2);font-size:10.5px;">${o.forn}</td><td class="mn">${o.data}</td><td class="vr bld">${brl(o.valor)}</td><td>${BADGE[o.sit]||o.sit}</td></tr>`).join('');
+  document.getElementById('ocFoot').innerHTML=`<tr><td colspan="5" style="padding:9px 0;font-size:11px;color:var(--text2);font-weight:700;">TOTAL DO PERÍODO</td><td class="vr" style="padding:9px 0;font-size:13px;color:var(--green);font-family:var(--mono);font-weight:500;">${brl(s.totalOCs)}</td><td></td></tr>`;
+  // Timeline
+  const tl=s.timeline,acum=tl.valores.reduce((arr,v,i)=>{arr.push((arr[i-1]||0)+v);return arr;},[]);
+  charts.tl=new Chart(document.getElementById('chTL').getContext('2d'),{type:'bar',data:{labels:tl.dias,datasets:[{label:'OCs no dia',data:tl.valores,backgroundColor:'rgba(74,158,255,0.25)',borderColor:'#4a9eff',borderWidth:1,borderRadius:4},{label:'Acumulado',data:acum,type:'line',borderColor:'#2dd98f',backgroundColor:'transparent',pointBackgroundColor:'#2dd98f',pointRadius:3,tension:0.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{color:'#5a6370',font:{size:10},boxWidth:9,padding:10}}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a6370',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,0.04)'},beginAtZero:true,ticks:{color:'#5a6370',font:{size:10},callback:v=>brlAx(v)}}}}});
+  document.getElementById('resp').innerHTML=s.responsaveis.map(r=>`<div class="sr"><div class="sk">${r.nome}</div><div class="sv">${r.ocs} OCs · ${brlK(r.total)}</div></div>`).join('');
+  document.getElementById('pend').innerHTML=s.pendencias.map(p=>`<div class="sr"><div class="sk" style="font-size:11px;">${p.num} · ${p.desc} <span style="color:var(--text3);font-size:10px;">(${p.obra})</span></div>${BADGE[p.sit]||p.sit}</div>`).join('');
+}
+
+function renderCons(){
+  killCharts();
+  document.getElementById('view-semana').classList.remove('on');
+  document.getElementById('view-cons').classList.add('on');
+  document.getElementById('hSub').textContent='Visão Consolidada · Todas as Semanas';
+  document.getElementById('hPer').textContent=SEMANAS[SEMANAS.length-1].label.split('–')[0].trim()+' – '+SEMANAS[0].label.split('–')[1].trim();
+  document.getElementById('fTxt').textContent='TB Engenharia e Construção · Consolidado · Gerado em '+SEMANAS[0].geradoEm;
+  const crono=[...SEMANAS].reverse();
+  const totOC=crono.reduce((a,s)=>a+s.totalOCs,0);
+  const totDesc=crono.reduce((a,s)=>a+s.descontos.reduce((b,d)=>b+(d.maiorPreco-d.precoVenc),0),0);
+  const totOrdens=crono.reduce((a,s)=>a+s.ordens,0);
+  const totSol=crono.reduce((a,s)=>a+s.solicitacoes,0);
+  const nSems=crono.length;
+  document.getElementById('cTot').textContent=brlK(totOC);
+  document.getElementById('cTotS').textContent=brlK(totOC/nSems)+' / semana';
+  document.getElementById('cDesc').textContent=brlK(totDesc);
+  const pctDescGlobal=totOC>0?(totDesc/(totOC+totDesc)*100):0;
+  document.getElementById('cDescS').textContent=pctDescGlobal.toLocaleString('pt-BR',{minimumFractionDigits:1})+'% sobre bruto cotado';
+  document.getElementById('cOCs').textContent=totOrdens;
+  document.getElementById('cOCsS').textContent=(totOrdens/nSems).toFixed(1).replace('.',',')+' OCs/semana';
+  document.getElementById('cSol').textContent=totSol;
+  document.getElementById('cSolS').textContent=(totSol/nSems).toFixed(1).replace('.',',')+' sol./semana';
+  document.getElementById('cSems').textContent=nSems;
+  const labels=crono.map((_,i)=>'Sem.'+(i+1));
+  const totais=crono.map(s=>s.totalOCs);
+  const acumOC=totais.reduce((arr,v,i)=>{arr.push((arr[i-1]||0)+v);return arr;},[]);
+  const descs=crono.map(s=>s.descontos.reduce((a,d)=>a+(d.maiorPreco-d.precoVenc),0));
+  const sols=crono.map(s=>s.solicitacoes),cots=crono.map(s=>s.cotacoes);
+  // Evolução OC
+  charts.evolOC=new Chart(document.getElementById('chEvolOC').getContext('2d'),{type:'bar',data:{labels,datasets:[{label:'OCs na semana',data:totais,backgroundColor:'rgba(74,158,255,0.3)',borderColor:'#4a9eff',borderWidth:1,borderRadius:5,order:2},{label:'Acumulado',data:acumOC,type:'line',borderColor:'#2dd98f',backgroundColor:'rgba(45,217,143,0.07)',fill:true,pointBackgroundColor:'#2dd98f',pointRadius:4,tension:0.3,order:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{color:'#5a6370',font:{size:10},boxWidth:9,padding:10}},tooltip:{callbacks:{label:ctx=>' '+brlK(ctx.parsed.y??ctx.parsed)}}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a6370',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,0.04)'},beginAtZero:true,ticks:{color:'#5a6370',font:{size:10},callback:v=>brlAx(v)}}}}});
+  // Evolução operacional
+  charts.evolOp=new Chart(document.getElementById('chEvolOp').getContext('2d'),{type:'bar',data:{labels,datasets:[{label:'Solicitações',data:sols,backgroundColor:'rgba(74,158,255,0.55)',borderRadius:4},{label:'Cotações',data:cots,backgroundColor:'rgba(245,166,35,0.55)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{color:'#5a6370',font:{size:10},boxWidth:9,padding:10}}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a6370',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,0.04)'},beginAtZero:true,ticks:{color:'#5a6370',font:{size:10}}}}}});
+  // Desconto por semana
+  charts.evolDesc=new Chart(document.getElementById('chEvolDesc').getContext('2d'),{type:'bar',data:{labels,datasets:[{label:'Desconto obtido (R$)',data:descs,backgroundColor:descs.map(d=>d>0?'rgba(45,217,143,0.55)':'rgba(90,99,112,0.3)'),borderColor:descs.map(d=>d>0?'#2dd98f':'#5a6370'),borderWidth:1,borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+brlK(ctx.parsed)}}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a6370',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,0.04)'},beginAtZero:true,ticks:{color:'#5a6370',font:{size:10},callback:v=>brlAx(v)}}}}});
+  // Tabela comparativa
+  const maxTot=Math.max(...totais);
+  document.getElementById('cTbody').innerHTML=crono.map((s,i)=>{
+    const desc=descs[i],brt=s.descontos.reduce((a,d)=>a+d.maiorPreco,0),pctD=brt>0?desc/brt*100:0,media=s.totalOCs/s.ordens,barW=Math.round(s.totalOCs/maxTot*100);
+    let delta='<span class="trend eq">—</span>';
+    if(i>0){const dif=s.totalOCs-crono[i-1].totalOCs,dp=crono[i-1].totalOCs>0?dif/crono[i-1].totalOCs*100:0,cls=dif>0?'up':dif<0?'dn':'eq';delta=`<span class="trend ${cls}">${dif>0?'+':''}${dp.toLocaleString('pt-BR',{minimumFractionDigits:1})}%</span>`;}
+    return`<tr><td class="mn hi">Sem.${i+1}</td><td style="font-size:11px;color:var(--text2);">${s.label}</td><td class="vr hi">${brl(s.totalOCs)}<span class="bar-inline" style="width:${barW}px;max-width:80px;background:rgba(74,158,255,0.35);"></span></td><td class="vr" style="color:var(--green);">${desc>0?brl(desc):'—'}</td><td class="vr" style="color:var(--green);">${pctD>0?pctD.toLocaleString('pt-BR',{minimumFractionDigits:1})+'%':'—'}</td><td class="vr">${s.ordens}</td><td class="vr">${s.solicitacoes}</td><td class="vr">${s.cotacoes}</td><td class="vr">${brl(media)}</td><td>${delta}</td></tr>`;
+  }).join('');
+  document.getElementById('cTfoot').innerHTML=`<tr style="border-top:1px solid var(--border2);"><td class="hi" style="padding:9px 0;font-weight:700;font-size:11px;" colspan="2">ACUMULADO (${nSems} semanas)</td><td class="vr" style="padding:9px 0;color:var(--teal);font-family:var(--mono);font-size:12px;font-weight:700;">${brl(totOC)}</td><td class="vr" style="padding:9px 0;color:var(--green);font-family:var(--mono);font-size:12px;font-weight:700;">${brl(totDesc)}</td><td class="vr" style="padding:9px 0;color:var(--green);font-family:var(--mono);font-size:11px;">${pctDescGlobal.toLocaleString('pt-BR',{minimumFractionDigits:1})}%</td><td class="vr" style="padding:9px 0;font-family:var(--mono);font-size:12px;font-weight:700;">${totOrdens}</td><td class="vr" style="padding:9px 0;font-family:var(--mono);">${totSol}</td><td class="vr" style="padding:9px 0;font-family:var(--mono);">${crono.reduce((a,s)=>a+s.cotacoes,0)}</td><td class="vr" style="padding:9px 0;font-family:var(--mono);">${brl(totOC/totOrdens)}</td><td></td></tr>`;
+  // Ranking obras
+  const obraAcum={};crono.forEach(s=>s.ocs.forEach(o=>{obraAcum[o.obra]=(obraAcum[o.obra]||0)+o.valor;}));
+  const obrasSort=Object.entries(obraAcum).sort((a,b)=>b[1]-a[1]),maxObra=obrasSort[0]?.[1]||1;
+  document.getElementById('cObraRank').innerHTML=obrasSort.map(([nome,val],i)=>`<div class="obra-rank-row"><div class="obra-rank-name">${nome}</div><div class="obra-rank-track"><div class="obra-rank-fill" style="width:${val/maxObra*100}%;background:${CORES[i%CORES.length]};"></div></div><div class="obra-rank-val">${brl(val)}</div></div>`).join('');
+  // Ranking fornecedores
+  const fornAcum={};crono.forEach(s=>s.ocs.forEach(o=>{fornAcum[o.forn]=(fornAcum[o.forn]||0)+o.valor;}));
+  const fornSort=Object.entries(fornAcum).sort((a,b)=>b[1]-a[1]).slice(0,10),maxForn=fornSort[0]?.[1]||1;
+  document.getElementById('cFornRank').innerHTML=fornSort.map(([forn,val],i)=>`<div class="obra-rank-row" style="margin-bottom:7px;"><div class="obra-rank-name" style="width:210px;font-size:11px;">${forn}</div><div class="obra-rank-track"><div class="obra-rank-fill" style="width:${val/maxForn*100}%;background:${CORES[i%CORES.length]};"></div></div><div class="obra-rank-val">${brl(val)}</div></div>`).join('');
+}
+
+buildTabs();
+renderSemana(0);
+</script>
+</body>
+</html>
